@@ -1,0 +1,19 @@
+{
+  "name": "authenticator",
+  "version": "1.0.0",
+  "description": "Node and MongoDB sign-in/ log-in authenticator",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/noelloera/authenticator.git"
+  },
+  "author": "noel loera",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/noelloera/authenticator/issues"
+  },
+  "homepage": "https://github.com/noelloera/authenticator#readme"
+}
