@@ -1,11 +1,13 @@
 const mongoose = require("mongoose");
-const { config } = require("dotenv/types");
-require("dotenv").config();
+require("dotenv").config({path:".env"})
 
 const dbURI = `mongodb+srv://${process.env.MONGO_E}:${process.env.MONGO_P}@groceries.ggozb.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority`;
 
 //This is implementation of sign in only
-const options = { useNewUrlParser: true };
+const options = { 
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+ };
 
 
 async function connect() {
@@ -32,4 +34,4 @@ async function disconnect() {
     });
 }
 
-module.exports={connect, disconnect}
+module.exports = { connect, disconnect }
