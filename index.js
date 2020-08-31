@@ -3,8 +3,10 @@ const bodyParser = require("body-parser");
 const app = express();
 const user = require("./routes/user.js")
 const { connect, disconnect } = require("./database/database.js");
-
-app.use(bodyParser.json());
+const morgan = require("morgan")
+app.use(
+  morgan("tiny"),
+  bodyParser.json());
 
 connect();
 
