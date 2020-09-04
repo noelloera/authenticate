@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 require("dotenv").config({path:".env"})
 
-const dbURI = `mongodb+srv://${process.env.MONGO_E}:${process.env.MONGO_P}@groceries.ggozb.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority`;
 
 //This is implementation of sign in only
 const options = { 
@@ -11,8 +10,9 @@ const options = {
 
 
 async function connect() {
-  await mongoose
-    .connect(process.env.MONGO_URI || dbURI, options)
+  try{
+    await mongoose
+    .connect(process.env.MONGO_URI, options)
     .then(() => {
       console.log("successfully connected database...");
     })
@@ -20,6 +20,9 @@ async function connect() {
       console.log(error);
       throw error;
     });
+  }catch(error){
+    console.log(error);
+  }
 }
 
 async function disconnect() {
