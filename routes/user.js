@@ -8,7 +8,9 @@ const router = express.Router();
 const User = require("../database/models/User.js");
 
 let refreshTokens = [];
-//Signup route for the server
+
+
+//SIGNUP FOR A NEW USER WITH USERNAME, EMAIL AND PASSWORD
 router.post(
   "/signup",
   [
@@ -59,7 +61,7 @@ router.post(
   }
 );
 
-//Log in route for the server
+//LOGIN FOR USER WITH EMAIL AND PASSWORD 
 router.post(
   "/login",
   [
@@ -79,7 +81,7 @@ router.post(
       }
       const match = await bcrypt.compare(password, user.password);
       if (!match) {
-        return res.status(400).send({ message: "incorrect password" });
+        return res.status(400).send({ message: "incorrect email/password" });
       }
       const payload = {
         id: user.id ,
@@ -93,16 +95,20 @@ router.post(
         refresh_token: refreshToken,
       });
     } catch (error) {
-      console.log(error);
       res.status(500).send({ message: "server error" });
-      throw error;
     }
   }
 );
 
-//Signs the access tokens for limited time
+//WILL UNREGISTER THE REFRESH TOKEN, AND WILL NOT GET ANYMORE ACCESS TOKENS
+router.delete('/logout',(req,res)=>{
+  refreshTokens = refreshTokens.filter(token => token !== req.body.token)
+  res.status(204).send({message:"successfully deleted token"})
+})
+
+//SIGNS ACCESS TOKEN FOR LIMITED TIME
 function getAccessToken(payload) {
-  return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {expiresIn:900,});
+  return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {expiresIn:300,});
 }
 
 router.post("/token", (req, res) => {
@@ -125,12 +131,15 @@ router.post("/token", (req, res) => {
   }
 });
 
+
+//OBTAINS USER INFORMATION FROM DATABASE
 router.get("/me", auth, async (req, res) => {
   //Esentially you can now just use the auth middleware to auth every call made using that token (GET, PUT, POST)
   try {
     if (req.body.id) {
       const user = await User.findById(req.body.id);
-      res.status(200).send(user);
+      //You can use this to return only specific items form the DB
+      res.status(200).send(user.refreshTokens);
     } else {
       res.status(401).send({ message: "error in fetching user" });
     }
