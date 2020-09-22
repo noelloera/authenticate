@@ -7,6 +7,7 @@ const router = express.Router();
 
 const User = require("../database/models/User.js");
 
+let refreshTokens = [];
 //Signup route for the server
 router.post(
   "/signup",
@@ -40,22 +41,17 @@ router.post(
       await user.save();
 
       const payload = {
-        user: {
-          id: user.id,
-        },
+        id: user.id ,
       };
 
-      jwt.sign(
-        payload,
-        "randomString",
-        {
-          expiresIn: 10000,
-        },
-        (err, token) => {
-          if (err) throw err;
-          res.status(200).json({ token });
-        }
-      );
+      const accessToken = getAccessToken(payload);
+      const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET);
+      //This needs to be stored in a database of refreshtokens
+      refreshTokens.push(refreshToken);
+      res.status(201).send({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
     } catch (error) {
       console.log(error.message);
       res.status(500).send({ message: "error in saving" });
@@ -86,11 +82,15 @@ router.post(
         return res.status(400).send({ message: "incorrect password" });
       }
       const payload = {
-        user: { id: user.id },
+        id: user.id ,
       };
-      jwt.sign(payload, "randomString", { expiresIn: 3600 }, (error, token) => {
-        if (error) throw error;
-        res.status(200).send({ token });
+      const accessToken = getAccessToken(payload)
+      const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET);
+      //This needs to be stored in a database of refreshtokens
+      refreshTokens.push(refreshToken);
+      res.status(200).send({
+        access_token: accessToken,
+        refresh_token: refreshToken,
       });
     } catch (error) {
       console.log(error);
@@ -100,13 +100,43 @@ router.post(
   }
 );
 
-router.get("/me", auth, async (req, res) => {
+//Signs the access tokens for limited time
+function getAccessToken(payload) {
+  return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {expiresIn:900,});
+}
+
+router.post("/token", (req, res) => {
+  const refreshToken = req.body.token;
+  if (refreshToken == null) res.status(401).send("no refresh token");
   try {
-    const user = await User.findById(req.user.id);
-    res.send(user);
+    if (!refreshTokens.includes(refreshToken))
+      res.status(403).send("cannot access");
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET,(error, user) => {
+        if (error) return res.status(403);
+        const payload = {
+          id: user.id ,
+        };
+        const accessToken = getAccessToken(payload);
+        res.status(200).send({ acess_token: accessToken });
+      }
+    );
+  } catch (error) {
+    throw error;
+  }
+});
+
+router.get("/me", auth, async (req, res) => {
+  //Esentially you can now just use the auth middleware to auth every call made using that token (GET, PUT, POST)
+  try {
+    if (req.body.id) {
+      const user = await User.findById(req.body.id);
+      res.status(200).send(user);
+    } else {
+      res.status(401).send({ message: "error in fetching user" });
+    }
   } catch (error) {
     console.log(error);
-    res.send({ message: "error in fetching user" });
+    res.status(401).send({ message: "error in fetching user" });
   }
 });
 

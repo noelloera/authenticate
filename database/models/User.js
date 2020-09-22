@@ -17,6 +17,7 @@ const userSchema = mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
+  refreshTokens: [String],
 });
 
 const User = mongoose.model("user", userSchema);
