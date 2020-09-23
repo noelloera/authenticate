@@ -5,7 +5,7 @@ const auth = require("../middleware/auth");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
 
-const User = require("../database/models/User.js");
+const {User} = require("../database/models/User.js");
 
 let refreshTokens = [];
 
@@ -108,7 +108,7 @@ router.delete('/logout',(req,res)=>{
 
 //SIGNS ACCESS TOKEN FOR LIMITED TIME
 function getAccessToken(payload) {
-  return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {expiresIn:300,});
+  return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {expiresIn:10000000,});
 }
 
 router.post("/token", (req, res) => {
@@ -128,24 +128,6 @@ router.post("/token", (req, res) => {
     );
   } catch (error) {
     throw error;
-  }
-});
-
-
-//OBTAINS USER INFORMATION FROM DATABASE
-router.get("/me", auth, async (req, res) => {
-  //Esentially you can now just use the auth middleware to auth every call made using that token (GET, PUT, POST)
-  try {
-    if (req.body.id) {
-      const user = await User.findById(req.body.id);
-      //You can use this to return only specific items form the DB
-      res.status(200).send(user.refreshTokens);
-    } else {
-      res.status(401).send({ message: "error in fetching user" });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(401).send({ message: "error in fetching user" });
   }
 });
 
