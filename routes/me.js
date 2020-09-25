@@ -30,7 +30,7 @@ router.get("/me", auth, async (req, res) => {
 
 router.get("/lists/", auth, (req, res) => {
   //Later, should only send if the log in was successful
-  User.findById(req.body.id,(error, lists) => {
+  User.findById(req.body.id,(error, user) => {
     if (error) {
       res.status(500).send({
         message: "unable to retrieve objects",
@@ -39,7 +39,7 @@ router.get("/lists/", auth, (req, res) => {
     } else {
       res.status(200).send({
         message: "found objects",
-        lists: lists,
+        lists: user.lists,
       });
     }
   });
@@ -110,8 +110,8 @@ router.post("/lists/:listId", auth, (req, res) => {
       value: value,
     });
     User.updateOne(
-      { _id: listId },
-      { $push: { items: newItem } },
+      { _id: req.body.id },
+      { $push: { "lists.items": newItem } },
       (error, list) => {
         if (error) res.status(404);
         else
@@ -132,7 +132,7 @@ router.delete("/lists/:listId", auth, (req, res) => {
   const listId = req.params.listId;
   const id = req.body.id;
   if (id) {
-    List.updateOne(
+    User.updateOne(
       { _id: listId },
       { $pull: { items: { _id: id } } },
       (error, list) => {
