@@ -102,7 +102,7 @@ router.post("/lists/", auth, (req, res) => {
 
 //Post Items
 router.post("/lists/:listId", auth, (req, res) => {
-  const listId = req.params.listId;
+  const listId = req.params.listId; 
   const value = req.body.value;
   if (value && value !== "") {
     const newItem = Item({
@@ -113,7 +113,7 @@ router.post("/lists/:listId", auth, (req, res) => {
       { _id: req.body.id },
       { $push: { "lists.items": newItem } },
       (error, list) => {
-        if (error) res.status(404);
+        if (error) res.status(404).send("error");
         else
           res.status(201).send({
             message: "updated",
