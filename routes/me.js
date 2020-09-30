@@ -30,7 +30,7 @@ router.get("/me", auth, async (req, res) => {
 
 router.get("/lists/", auth, (req, res) => {
   //Later, should only send if the log in was successful
-  User.findById(req.body.id,(error, user) => {
+  User.findById(req.body.id, (error, user) => {
     if (error) {
       res.status(500).send({
         message: "unable to retrieve objects",
@@ -49,18 +49,22 @@ router.get("/lists/", auth, (req, res) => {
 router.get("/lists/:listId", auth, (req, res) => {
   const id = req.params.listId;
   if (id && id !== "") {
-    User.findById(id, (error, list) => {
-      if (error || !list) {
-        res.status(404).send({
-          message: "unable to retrieve list",
-        });
-      } else {
-        res.status(302).send({
-          message: "successfully retrieved list",
-          list: list,
-        });
+    User.find(
+      { lists: { $elemMatch: { _id: id } } },
+      { "lists.$": 1 },
+      (error, obj) => {
+        if (error || !obj) {
+          res.status(404).send({
+            message: "unable to retrieve list",
+          });
+        } else {
+          res.status(302).send({
+            message: "successfully retrieved list",
+            list: obj[0].lists[0],
+          });
+        }
       }
-    });
+    );
   } else {
     res.status(404).send({
       message: "unable to retrieve list: invalid id",
@@ -80,19 +84,20 @@ router.post("/lists/", auth, (req, res) => {
       items: [],
     });
     User.updateOne(
-        {_id:req.body.id},
-        {$push:{lists: newList}},
-        (error, list) => {
-      if (error || !list) {
-        res.status(422).send({
-          message: "unable to create: invalid list name",
-        });
-      } else {
-        res.status(201).send({
-          message: "successully created list",
-        });
+      { _id: req.body.id },
+      { $push: { lists: newList } },
+      (error, list) => {
+        if (error || !list) {
+          res.status(422).send({
+            message: "unable to create: invalid list name",
+          });
+        } else {
+          res.status(201).send({
+            message: "successully created list",
+          });
+        }
       }
-    });
+    );
   } else {
     res.status(422).send({
       message: "unable to create: invalid list name",
@@ -102,21 +107,22 @@ router.post("/lists/", auth, (req, res) => {
 
 //Post Items
 router.post("/lists/:listId", auth, (req, res) => {
-  const listId = req.params.listId; 
+  const id = req.params.listId;
   const value = req.body.value;
   if (value && value !== "") {
     const newItem = Item({
       _id: new mongoose.Types.ObjectId(),
       value: value,
     });
-    User.updateOne(
-      { _id: req.body.id },
-      { $push: { "lists.items": newItem } },
-      (error, list) => {
-        if (error) res.status(404).send("error");
+    User.findOneAndUpdate(
+      { _id:req.body.id, "lists._id": id },
+      { $push: {"lists[0].items[0]": newItem} },
+      (error, success) => {
+        if (error) res.status(404).send(error);
         else
           res.status(201).send({
             message: "updated",
+            result: success,
           });
       }
     );

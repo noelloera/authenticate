@@ -5,7 +5,8 @@ require("dotenv").config({path:".env"})
 //This is implementation of sign in only
 const options = { 
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
+  useFindAndModify: false
  };
 
 
