@@ -49,18 +49,19 @@ router.get("/lists/", auth, (req, res) => {
 router.get("/lists/:listId", auth, (req, res) => {
   const id = req.params.listId;
   if (id && id !== "") {
-    User.find(
-      { lists: { $elemMatch: { _id: id } } },
-      { "lists.$": 1 },
-      (error, obj) => {
-        if (error || !obj) {
+    User.findOne(
+      //Returning the entire pre document in the query
+      {_id:req.body.id, "lists._id":id},
+      {"lists.$":id},
+      (error, log) => {
+        if (error ) {
           res.status(404).send({
             message: "unable to retrieve list",
           });
         } else {
           res.status(302).send({
             message: "successfully retrieved list",
-            list: obj[0].lists[0],
+            list: log,
           });
         }
       }
@@ -76,7 +77,7 @@ router.get("/lists/:listId", auth, (req, res) => {
 //Lists
 router.post("/lists/", auth, (req, res) => {
   const name = req.body.name;
-  if (name && name !== "") {
+  if (name && name !== "" && name.replace(/\s/g, '').length) {
     //connections should be established after conditionals
     const newList = new List({
       _id: new mongoose.Types.ObjectId(),
@@ -86,14 +87,15 @@ router.post("/lists/", auth, (req, res) => {
     User.updateOne(
       { _id: req.body.id },
       { $push: { lists: newList } },
-      (error, list) => {
-        if (error || !list) {
+      (error, log) => {
+        if (error || !log) {
           res.status(422).send({
             message: "unable to create: invalid list name",
           });
         } else {
           res.status(201).send({
             message: "successully created list",
+            log: log
           });
         }
       }
@@ -109,20 +111,21 @@ router.post("/lists/", auth, (req, res) => {
 router.post("/lists/:listId", auth, (req, res) => {
   const id = req.params.listId;
   const value = req.body.value;
-  if (value && value !== "") {
+  if (value && value !== "" && value.replace(/\s/g, '').length) {
     const newItem = Item({
       _id: new mongoose.Types.ObjectId(),
       value: value,
     });
-    User.findOneAndUpdate(
-      { _id:req.body.id, "lists._id": id },
-      { $push: {"lists[0].items[0]": newItem} },
-      (error, success) => {
+    User.updateOne(
+      //Upsert allows it to update and insert to given id params
+      { _id: req.body.id, "lists._id": id },
+      { $push: { "lists.$.items": newItem } },
+      (error, log) => {
         if (error) res.status(404).send(error);
         else
           res.status(201).send({
             message: "updated",
-            result: success,
+            log: log
           });
       }
     );
@@ -136,12 +139,12 @@ router.post("/lists/:listId", auth, (req, res) => {
 //DELETE Requests, you can send the body as url call too
 router.delete("/lists/:listId", auth, (req, res) => {
   const listId = req.params.listId;
-  const id = req.body.id;
-  if (id) {
+  const itemId = req.body.itemId;
+  if (itemId && listId) {
     User.updateOne(
-      { _id: listId },
-      { $pull: { items: { _id: id } } },
-      (error, list) => {
+      { _id: req.body.id, "lists._id": listId, "lists.items._id": itemId },
+      { $pull: { "lists.$.items": { "_id": itemId } } },
+      (error, log) => {
         if (error) {
           res.status(422).send({
             message: "unable to delete: request error",
@@ -149,6 +152,7 @@ router.delete("/lists/:listId", auth, (req, res) => {
         } else {
           res.status(202).send({
             message: "deleted the item object",
+            log: log
           });
         }
       }
