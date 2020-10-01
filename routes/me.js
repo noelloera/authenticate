@@ -51,17 +51,17 @@ router.get("/lists/:listId", auth, (req, res) => {
   if (id && id !== "") {
     User.findOne(
       //Returning the entire pre document in the query
-      {_id:req.body.id, "lists._id":id},
-      {"lists.$":id},
-      (error, log) => {
-        if (error ) {
+      { "lists._id": id },
+      { "lists.$._id": id },
+      (error, object) => {
+        if (error) {
           res.status(404).send({
             message: "unable to retrieve list",
           });
         } else {
           res.status(302).send({
             message: "successfully retrieved list",
-            list: log,
+            list: object.lists,
           });
         }
       }
@@ -77,7 +77,7 @@ router.get("/lists/:listId", auth, (req, res) => {
 //Lists
 router.post("/lists/", auth, (req, res) => {
   const name = req.body.name;
-  if (name && name !== "" && name.replace(/\s/g, '').length) {
+  if (name && name !== "" && name.replace(/\s/g, "").length) {
     //connections should be established after conditionals
     const newList = new List({
       _id: new mongoose.Types.ObjectId(),
@@ -95,7 +95,7 @@ router.post("/lists/", auth, (req, res) => {
         } else {
           res.status(201).send({
             message: "successully created list",
-            log: log
+            log: log,
           });
         }
       }
@@ -111,7 +111,7 @@ router.post("/lists/", auth, (req, res) => {
 router.post("/lists/:listId", auth, (req, res) => {
   const id = req.params.listId;
   const value = req.body.value;
-  if (value && value !== "" && value.replace(/\s/g, '').length) {
+  if (value && value !== "" && value.replace(/\s/g, "").length) {
     const newItem = Item({
       _id: new mongoose.Types.ObjectId(),
       value: value,
@@ -125,7 +125,7 @@ router.post("/lists/:listId", auth, (req, res) => {
         else
           res.status(201).send({
             message: "updated",
-            log: log
+            log: log,
           });
       }
     );
@@ -143,7 +143,7 @@ router.delete("/lists/:listId", auth, (req, res) => {
   if (itemId && listId) {
     User.updateOne(
       { _id: req.body.id, "lists._id": listId, "lists.items._id": itemId },
-      { $pull: { "lists.$.items": { "_id": itemId } } },
+      { $pull: { "lists.$.items": { _id: itemId } } },
       (error, log) => {
         if (error) {
           res.status(422).send({
@@ -152,7 +152,7 @@ router.delete("/lists/:listId", auth, (req, res) => {
         } else {
           res.status(202).send({
             message: "deleted the item object",
-            log: log
+            log: log,
           });
         }
       }
