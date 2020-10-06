@@ -108,7 +108,7 @@ router.delete('/logout',(req,res)=>{
 
 //SIGNS ACCESS TOKEN FOR LIMITED TIME
 function getAccessToken(payload) {
-  return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {expiresIn:10000000,});
+  return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {expiresIn:"20m",});
 }
 
 router.post("/token", (req, res) => {
