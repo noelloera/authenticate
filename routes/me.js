@@ -1,20 +1,16 @@
 const express = require("express");
-const { check, validationResult } = require("express-validator");
-const bcrypt = require("bcryptjs");
 const auth = require("../middleware/auth");
-const jwt = require("jsonwebtoken");
 const router = express.Router();
 const mongoose = require("mongoose");
-
 const { User, List, Item } = require("../database/models/User.js");
 
-//OBTAINS USER INFORMATION FROM DATABASE
+//-Need to connect and disconnect with every database query
+
+//GET username and lists
 router.get("/me", auth, async (req, res) => {
-  //Esentially you can now just use the auth middleware to auth every call made using that token (GET, PUT, POST)
   try {
     if (req.body.id) {
       const user = await User.findById(req.body.id);
-      //You can use this to return only specific items form the DB
       res.status(200).send({
         username: user.username,
         lists: user.lists,
@@ -28,8 +24,8 @@ router.get("/me", auth, async (req, res) => {
   }
 });
 
+//GET all lists
 router.get("/lists/", auth, (req, res) => {
-  //Later, should only send if the log in was successful
   User.findById(req.body.id, (error, user) => {
     if (error) {
       res.status(500).send({
@@ -45,12 +41,11 @@ router.get("/lists/", auth, (req, res) => {
   });
 });
 
-//GET ID
+//GET list by ID
 router.get("/lists/:listId", auth, (req, res) => {
   const id = req.params.listId;
   if (id && id !== "") {
     User.findOne(
-      //Returning the entire pre document in the query
       { "lists._id": id },
       { "lists.$._id": id },
       (error, object) => {
@@ -73,12 +68,10 @@ router.get("/lists/:listId", auth, (req, res) => {
   }
 });
 
-//POST Requests
-//Lists
+//POST new list
 router.post("/lists/", auth, (req, res) => {
   const name = req.body.name;
   if (name && name !== "" && name.replace(/\s/g, "").length) {
-    //connections should be established after conditionals
     const newList = new List({
       _id: new mongoose.Types.ObjectId(),
       name: name,
@@ -107,7 +100,7 @@ router.post("/lists/", auth, (req, res) => {
   }
 });
 
-//Post Items
+//POST updated list
 router.post("/lists/:listId", auth, (req, res) => {
   const id = req.params.listId;
   const value = req.body.value;
@@ -134,9 +127,7 @@ router.post("/lists/:listId", auth, (req, res) => {
   }
 });
 
-//UPDATE Item and List Names
-
-//DELETE Requests, you can send the body as url call too
+//DELETE item from list
 router.delete("/lists/:listId", auth, (req, res) => {
   const listId = req.params.listId;
   const itemId = req.body.itemId;
