@@ -3,10 +3,15 @@ const { check, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
-const {User} = require("../database/models/User.js");
+const { User } = require("../database/models/User.js");
 
 let refreshTokens = [];
-
+//SIGNS ACCESS TOKEN FOR LIMITED TIME
+getAccessToken = (payload) => {
+  return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: "20m",
+  });
+};
 
 //SIGNUP FOR A NEW USER WITH USERNAME, EMAIL AND PASSWORD
 router.post(
@@ -41,7 +46,7 @@ router.post(
       await user.save();
 
       const payload = {
-        id: user.id ,
+        id: user.id,
       };
 
       const accessToken = getAccessToken(payload);
@@ -59,7 +64,7 @@ router.post(
   }
 );
 
-//LOGIN FOR USER WITH EMAIL AND PASSWORD 
+//LOGIN FOR USER WITH EMAIL AND PASSWORD
 router.post(
   "/login",
   [
@@ -82,9 +87,9 @@ router.post(
         return res.status(400).send({ message: "incorrect email/password" });
       }
       const payload = {
-        id: user.id ,
+        id: user.id,
       };
-      const accessToken = getAccessToken(payload)
+      const accessToken = getAccessToken(payload);
       const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET);
       //This needs to be stored in a database of refreshtokens
       refreshTokens.push(refreshToken);
@@ -99,15 +104,10 @@ router.post(
 );
 
 //WILL UNREGISTER THE REFRESH TOKEN, AND WILL NOT GET ANYMORE ACCESS TOKENS
-router.delete('/logout',(req,res)=>{
-  refreshTokens = refreshTokens.filter(token => token !== req.body.token)
-  res.status(204).send({message:"successfully deleted token"})
-})
-
-//SIGNS ACCESS TOKEN FOR LIMITED TIME
-function getAccessToken(payload) {
-  return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {expiresIn:"20m",});
-}
+router.delete("/logout", (req, res) => {
+  refreshTokens = refreshTokens.filter((token) => token !== req.body.token);
+  res.status(204).send({ message: "successfully deleted token" });
+});
 
 router.post("/token", (req, res) => {
   const refreshToken = req.body.token;
@@ -115,10 +115,13 @@ router.post("/token", (req, res) => {
   try {
     if (!refreshTokens.includes(refreshToken))
       res.status(403).send("cannot access");
-    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET,(error, user) => {
+    jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET,
+      (error, user) => {
         if (error) return res.status(403);
         const payload = {
-          id: user.id ,
+          id: user.id,
         };
         const accessToken = getAccessToken(payload);
         res.status(200).send({ acess_token: accessToken });
