@@ -26,7 +26,7 @@ class Authenticated extends React.Component {
       })
       .catch((err) => {
         localStorage.removeItem("access_token");
-        this.props.history.push("/Login");
+        this.props.history.push("/login");
       });
   }
   render() {

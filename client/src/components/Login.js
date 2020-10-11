@@ -28,27 +28,31 @@ class Login extends React.Component {
     .then(res=>{
         localStorage.setItem('access_token', res.data.access_token)
         localStorage.setItem('refresh_token', res.data.refresh_token)
-        this.props.history.push('/Protected')
+        this.props.history.push('/main')
     })
   }
   render() {
     return (
-      <div>
+      <div style={{textAlign:"center"}}>
         <form onSubmit={e=>this.submit(e)}>
-          <label>email:</label>
+          <label>Email:</label>
+          <br/>
           <input
             name="email"
             type="text"
             value={this.state.email}
             onChange={(e) => this.change(e)}
           ></input>
-          <label>password:</label>
+          <br/>
+          <label>Password:</label>
+          <br/>
           <input
             name="password"
             type="password"
             value={this.state.password}
             onChange={(e) => this.change(e)}
           ></input>
+          <br/>
           <button>log in</button>
         </form>
       </div>

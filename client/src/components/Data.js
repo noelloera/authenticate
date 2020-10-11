@@ -3,7 +3,7 @@ import React from "react";
 const Data = (props) => {
   return (
     <div>
-      <h1 style={{textTransform:"uppercase"}}>{props.data.username}</h1>
+      <h1>{props.data.username}</h1>
       {props.data.lists.map((list) => {
         return (
           <ol key={list._id}>
