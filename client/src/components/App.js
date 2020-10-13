@@ -1,5 +1,4 @@
 import { BrowserRouter, Switch, Route } from "react-router-dom";
-import Home from "./Home";
 import Login from "./Login";
 import Authenticated from "./Authenticated";
 import Data from "./Data";
@@ -9,8 +8,7 @@ export default class App extends React.Component {
     return (
       <BrowserRouter>
         <Switch>
-          <Route path="/" exact component={Home} />
-          <Route path="/login" component={Login} />
+          <Route path="/login" exact component={Login} />
           <Authenticated>
             <Route path="/main" component={Data} />
           </Authenticated>

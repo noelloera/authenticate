@@ -9,7 +9,7 @@ let refreshTokens = [];
 //SIGNS ACCESS TOKEN FOR LIMITED TIME
 getAccessToken = (payload) => {
   return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "20m",
+    expiresIn: "1m",
   });
 };
 

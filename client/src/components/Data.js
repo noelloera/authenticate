@@ -1,5 +1,53 @@
 import React from "react";
+import axios from 'axios'
+import {getToken, clearToken} from './helpers/jwt'
+import {withRouter} from 'react-router-dom'
+//Data can be a parent component, since its protected it will only mount if 
+//Authentication was valid
+class Data extends React.Component{
+  constructor(props){
+    super(props)
+    this.state={
+      username: undefined,
+      lists:[]
 
+    }
+  }
+  componentDidMount(){
+    const jwt = getToken()
+    if(!jwt){
+      this.props.history.push('/login')
+    }
+    try{
+      axios.get('/me/',{
+        headers:{
+          Authorization: `Bearer ${jwt}`
+        }
+      })
+      .then(res=>{
+        this.setState({
+          username: res.data.username,
+          lists: res.data.lists
+        })
+        console.log(this.state)
+      })
+    }catch(err){
+      console.log(err)
+      clearToken();
+      this.props.history.push('/login')
+    }
+  }
+
+  render(){
+    return <div><h2>{this.state.username}</h2>
+    <h4>{this.state.lists.map(obj=>{
+      return <h4>{obj.name}</h4>
+    })}</h4>
+    </div>
+    
+  }
+}
+/*
 const Data = (props) => {
   return (
     <div>
@@ -16,7 +64,6 @@ const Data = (props) => {
       })}
     </div>
   );
-};
+};*/
 
-export default Data;
-
+export default withRouter(Data)

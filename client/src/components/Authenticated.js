@@ -7,46 +7,39 @@ import Data from "./Data";
 class Authenticated extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { user: undefined };
+    this.state = { authenticated: false };
   }
 
   componentDidMount() {
     const jwt = getToken();
     if (!jwt) {
-      this.props.history.push("./Login");
+      this.props.history.push("/login");
     }
     axios
       .get("/me/", {
         headers: { Authorization: `Bearer ${jwt}` },
       })
       .then((res) => {
-        this.setState({
-          user: res.data,
-        });
+        //Here you can choose what happens w
+        //status codes
+        if(res.status===204||res.status===304){
+          this.setState({authenticated:true})
+        }
       })
       .catch((err) => {
         localStorage.removeItem("access_token");
         this.props.history.push("/login");
       });
   }
-  render() {
-    const style={
-        textAlign: "center"
-    };
-
-    if (this.state.user === undefined) {
-      return (
-        <div>
-          <h1>loading...</h1>
-        </div>
-      );
+  render(){
+    if(this.state.authenticated){
+      {this.props.history.push('/login')}
     }
-    return (
-      <div style={style}>
-        <Data data={this.state.user} />
-      </div>
-    );
+    return(
+      <Data/>
+    )
   }
+
 }
 
 export default withRouter(Authenticated);
