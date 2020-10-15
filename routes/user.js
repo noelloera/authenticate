@@ -113,21 +113,24 @@ router.post("/token", (req, res) => {
   const refreshToken = req.body.token;
   if (refreshToken == null) res.status(401).send("no refresh token");
   try {
+    //This will check if the refresh token is stored
+    /*
     if (!refreshTokens.includes(refreshToken))
-      res.status(403).send("cannot access");
+      res.status(403).send("cannot access");*/
     jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET,
       (error, user) => {
-        if (error) return res.status(403);
+        if (error) return res.status(403).send("invalid token");
         const payload = {
           id: user.id,
         };
         const accessToken = getAccessToken(payload);
-        res.status(200).send({ acess_token: accessToken });
+        res.status(200).send({ access_token: accessToken });
       }
     );
   } catch (error) {
+    res.status(500).send("invalid token");
     throw error;
   }
 });

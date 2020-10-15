@@ -19,7 +19,6 @@ class Login extends React.Component {
     });
   }
   submit(e) {
-    
     e.preventDefault();
     axios.post('/login',{
         email: this.state.email,

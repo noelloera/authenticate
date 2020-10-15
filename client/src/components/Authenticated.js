@@ -3,6 +3,7 @@ import { getToken } from "./helpers/jwt";
 import axios from "axios";
 import { withRouter } from "react-router-dom";
 import Data from "./Data";
+import Login from "./Login";
 
 class Authenticated extends React.Component {
   constructor(props) {
@@ -32,8 +33,8 @@ class Authenticated extends React.Component {
       });
   }
   render(){
-    if(this.state.authenticated){
-      {this.props.history.push('/login')}
+    if(!this.state.authenticated){
+      return <Login />
     }
     return(
       <Data/>
