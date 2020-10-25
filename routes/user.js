@@ -104,7 +104,7 @@ router.post(
 );
 
 //WILL UNREGISTER THE REFRESH TOKEN, AND WILL NOT GET ANYMORE ACCESS TOKENS
-router.delete("/logout", (req, res) => {
+router.delete("/logout" ,(req, res) => {
   refreshTokens = refreshTokens.filter((token) => token !== req.body.token);
   res.status(204).send({ message: "successfully deleted token" });
 });
@@ -121,7 +121,7 @@ router.post("/token", (req, res) => {
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET,
       (error, user) => {
-        if (error) return res.status(403).send("invalid token");
+        if (error)  res.status(403).send("invalid token");
         const payload = {
           id: user.id,
         };

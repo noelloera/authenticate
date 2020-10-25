@@ -12,6 +12,7 @@ class Authenticated extends React.Component {
   }
 
   componentDidMount() {
+    alert("I MOUNTEDD");
     const jwt = getToken();
     if (!jwt) {
       this.props.history.push("/login");
@@ -23,8 +24,8 @@ class Authenticated extends React.Component {
       .then((res) => {
         //Here you can choose what happens w
         //status codes
-        if(res.status===204||res.status===304){
-          this.setState({authenticated:true})
+        if (res.status === 204 || res.status === 304) {
+          this.setState({ authenticated: true });
         }
       })
       .catch((err) => {
@@ -32,15 +33,12 @@ class Authenticated extends React.Component {
         this.props.history.push("/login");
       });
   }
-  render(){
-    if(!this.state.authenticated){
-      return <Login />
+  render() {
+    if (!this.state.authenticated) {
+      return <div>loading</div>;
     }
-    return(
-      <Data/>
-    )
+    return <Data />;
   }
-
 }
 
 export default withRouter(Authenticated);
