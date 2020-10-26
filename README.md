@@ -1,7 +1,7 @@
 # Authenticate
 
 ## Introduction 
-Back-end React based application which authenticates users using JSON web tokens. Ensures the encryption of passwords. Encodes tokens using signatures, server-secret, and user database identification. Provides middleware function which verifies JSON web tokens.
+Back-end REST API built on Express.js. The application authenticates users using JSON web tokens. Ensures the encryption of passwords. Encodes tokens using signatures, server-secret, and user database identification. Provides middleware function which verifies JSON web tokens. Then responds with data from (NoSQL) MongoDB database.
 
 ## Table of Contents
 * [General Info](#general-info)
