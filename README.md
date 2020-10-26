@@ -20,7 +20,7 @@ Authenticate is a REST API built using Express.js which uses JSON web tokens, in
 8. Upon failing status code, "/token" refresh route provided if client includes valid refresh token
 9. Data routes can be modified to fit needs of response data being sent, as well as MongoDB URI 
 
-##Features
+## Features
 * User registration
 * MongoDB data storage 
 * Password, and user information encryption
@@ -43,5 +43,5 @@ Running this project requires local installation of npm:
 2. $ npm install
 3. $ node index.js / nodemon index.js
 
-##Status
+## Status
 Application is functional. Development still ongoing.
