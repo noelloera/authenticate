@@ -5,10 +5,10 @@ Back-end REST API built on Express.js. The application authenticates users using
 
 ## Table of Contents
 * [General Info](#general-info)
-* [Features] (#features)
+* [Features] (#Features)
 * [Technologies](#technologies)
 * [Setup](#setup)
-* [Status] (#status)
+* [Status] (#Status)
 
 ## General Info
 Authenticate is a REST API built using Express.js which uses JSON web tokens, in conjunction with password encryption to handle sensitive user authorization calls. Provide routes for logging in, signing up, re-signing access tokens, as well as responding with user data from MongoDB provided the tokens are valid.
